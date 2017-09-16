@@ -1,5 +1,3 @@
-# angularjs4
-
 Angular4:
 ---------
 CLI need NodeJs to build and manage packages... and provide local dev server for testing
