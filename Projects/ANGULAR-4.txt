@@ -1,0 +1,500 @@
+Angular4:
+---------
+CLI need NodeJs to build and manage packages... and provide local dev server for testing
+https://nodejs.org/en/download/
+https://cli.angular.io/ : for creating and managing angular project
+
+NodeJs will be install before CLI.... as cli need NodeJs
+Once NodeJs is install open cmd and run below command
+npm install -g @angular/cli : node package manager install globally angular-cli...
+
+Now we create a new Angular Project using CLI....Command Line Interface
+Create new project.
+1. Create a new dir in which you want to create angular project
+2. ng new projectName : you can put dir and project name same/diff...
+Above will download all require dependency...to run our first project.
+
+Than we move to project dir
+cd projectDir
+ng serve : this command will build source code and run dev server (Just like Tomcat)
+
+Folder Structure :
+All files outside dir are for Project Configuration....
+e2e dir for End to End Testing.
+src dir conatin our code
+file inside src are again for project configuration...
+
+*.component.ts      : Controller
+*.component.html    : HTML View for that Controller
+*.component.css     : CSS for HTML View
+*.component.spec.ts : Testing 
+
+CLI Misses:
+app.module.ts
+import { FormsModule } from '@angular/forms';
+import { NgModule } from '@angular/core';
+
+imports: [
+    BrowserModule,
+    FormsModule
+  ],
+
+Typescript:
+-----------
+Type Safe , provide concept of Classes , Interfaces ...
+Tyepscript compile to Javascript with the help of CLI...
+In browser javascript will run
+
+Install Bootstrap: npm install --save bootstrap
+
+bootstrap is downloaded ....now we need to tell angular project to use bootstrap
+in angular-cli.json : we will enter the bootstrap configuration
+"styles": [
+        "../node_modules/bootstrap/dist/css/bootstrap.min.css",
+        "styles.css"
+      ],
+
+How Angular Loads Up:
+---------------------
+In src dir we have index.html which is staring point...
+index.html contain: <app-root></app-root> 
+this will look for app component 
+in app dir under src dir it will find app.component.ts which has
+@Component({
+  selector: 'app-root', /* this is what we see in index.html */
+  templateUrl: './app.component.html', /* this is what we see loaded as first page..*/
+  styleUrls: ['./app.component.css']  /* this is css which is applied ...*/
+})
+app.component.html contain: <h1>Welcome to Angular</h1> /* this is wee see as landing page */
+
+when we do view page source below will show....
+
+When cli runs it packages all the js file in a bundle..
+<script type="text/javascript" src="inline.bundle.js"></script><script type="text/javascript" src="polyfills.bundle.js"></script><script type="text/javascript" src="styles.bundle.js"></script><script type="text/javascript" src="vendor.bundle.js"></script><script type="text/javascript" src="main.bundle.js"></script></body>
+</html>
+
+so cli bundle all our code and inject as js and when html run it run bundle js file...
+it runs main.ts which contain:
+import { enableProdMode } from '@angular/core'; /* we can enable PROD mode from here */
+import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
+
+import { AppModule } from './app/app.module';
+import { environment } from './environments/environment';
+
+if (environment.production) {
+  enableProdMode();
+}
+platformBrowserDynamic().bootstrapModule(AppModule);
+
+bootstrapModule(AppModule) will look for import ..from './app/app.module' and run 
+app.module.ts and app.module.ts contain: bootstrap: [AppComponent]
+above line will bootstrap the AppComponent 
+which is our app.component.ts ie: export class AppComponent
+app.component.ts have :
+@Component({
+  selector: 'app-root',
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.css']
+
+Components: component are directive that has template,css.
+-----------
+resuable
+Angular app is made up of components like 
+header component
+in body we can have left panel component and right pannel component
+fotter component
+each component have its own .ts for buisness, .html for view, .css for look and feel
+
+Create a new Component:
+-----------------------
+<app-root> is root component (app.component.ts)
+now we create our component and these component entry will goes to app.component.html
+
+all new component will go into app dir.. 
+each component should have seprate dir...
+component name should be dir name easy to recognize...
+create file in new component: componentName.component.ts
+
+component is a angular class : 
+export class ServerComponent{} : Server as component name, this is a normal class
+to enhance this class we attch @Component decorator now its component class
+import { Component } from '@angular/core';
+@Component({
+	selector : 'app-server', /* using this name we can reffer to this component   */
+	templateUrl : './server.component.html',
+	styleUrls: ['./server.component.css']
+})
+export class ServerComponent{}
+
+Now we have to register the new Server component to app.module.ts:
+import { ServerComponent } from './server/server.component'; without .ts extension angular will put that for us.
+@NgModule({
+  declarations: [
+    AppComponent,
+    ServerComponent	
+  ],
+  imports: [
+    BrowserModule,
+    FormsModule
+  ],
+  providers: [],
+  bootstrap: [AppComponent]
+})
+
+now we can use our new server component :
+in app.component.html : <app-server></app-server>
+
+creating component using cli:
+-----------------------------
+ng g c componentName : g for genrate and c for component
+
+diff between template and templateUrl: always use external ....
+template is in line html and templateUrl is html which we reffer
+same styles is inline and stylesUrls is reffer to external css file
+inline applied between inline and external
+
+use emmet : app-server press tab for component
+for css : .className press tab
+
+selectors : 
+-----------
+selector: 'app-servers'  is for element selector  <app-servers></app-servers>
+selector: '[app-servers]' is for attribute selector like  <h2 app-servers></h2>
+selector: '.app-servers' is for css class attribute like  <h2 class="app-servers"></h2>
+
+Databinding:
+-----------
+communication between Typescript Code and Html Template
+
+property binding: for html element and directives : [property] = "expression" using []
+<button class="btn btn-primary" [disabled]="!allowNewServer">Add Server</button>
+allowNewServer = false;
+  constructor() {
+    setTimeout(() => {
+      this.allowNewServer = true;
+    },2000)
+  }
+
+String Interpolation : {{}} 
+
+Event Binding: using ()
+-----------------------
+<button class="btn btn-primary" [disabled]="!allowNewServer" (click)="onServercreate()">Add Server</button>
+<p>{{allowNewServer}}</p>
+<p [innerText]="allowNewServer"></p>
+<p>{{serverCreationStatus}}</p>
+<p>
+
+serverCreationStatus = "No server created yet!"
+onServercreate(){
+    this.serverCreationStatus = "Server created successfully!"
+  }
+
+input event:
+------------
+<input type="text" class="form-control" (input)="onUpdateServer($event)">
+ onUpdateServer(event:any){
+    console.log(event.target.value);
+    this.newServerName=event.target.value;
+  }
+
+2 Way Data Binding:
+-------------------
+[(ngModel)]="propertyName"
+
+<input type="text" class="form-control" (input)="onUpdateServer($event)" [(ngModel)]="newServerName">
+<p>{{newServerName}}</p>
+
+newServerName='Default';
+onUpdateServer(event:any){
+    console.log(event.target.value);
+    this.newServerName=event.target.value;
+  }
+Important: For Two-Way-Binding to work, you need to enable the ngModel directive. This is done by adding the FormsModule  to the imports[]  array in the AppModule.
+
+You then also need to add the import from @angular/forms  in the app.module.ts file:
+
+import { FormsModule } from '@angular/forms';
+
+Directives:
+-----------
+Instruction to DOM
+
+<p *ngIf="!serverAdded">No Server Created</p>
+<p *ngIf="serverAdded">{{serverCreationStatus}}</p>
+<p [ngStyle]="{background:getColor()}" [ngClass]='{online: serverStatus === "online"}'>
+  {{'Server'}} with ID {{serverId}} is {{getServerStatus()}}
+
+ng-for:
+-------
+<p *ngFor="let server of servers; let i=index">{{server}} {{i}}</p>
+servers = ['Server1','Server2'];
+on update
+this.servers.push(this.newServerName);
+
+Shortcut:
+---------
+export class Recipe{
+
+  public name:string;
+  public description:string;
+  public imagePath:string;
+
+  constructor(name:string , desc:string, imagePath:string){
+    this.name=name;
+    this.description=desc;
+    this.imagePath=imagePath;
+  }
+
+}
+
+can also do like :
+export class Recipe{
+  constructor(public name:string ,public desc:string,public imagePath:string){
+  }
+
+}
+
+Debug:
+------
+Developer Tool : Source : Webpack : . src .....typescript put debug point and see.
+augury chrome extension ....for debug
+
+Component To Component Communication :
+--------------------------------------
+Parent.......
+export class AppComponent {
+  serverElements = [{type:'server',name:'TestServer',content:'Just a TestServer'}];
+}
+
+<div class="col-xs-12">
+      <app-server-element *ngFor="let serverElement of serverElements" [element]="serverElement"></app-server-element>
+</div>
+
+Child.......
+export class ServerElementComponent implements OnInit {
+ @Input() element : {type: string,name: string,content: string};
+}
+
+<div class="panel-body">
+    <p>
+      <strong *ngIf="element.type === 'server'" style="color: red">{{ element.content }}</strong>
+      <em *ngIf="element.type === 'blueprint'">{{ element.content }}</em>
+    </p>
+</div>
+
+what happes: Parent has data and child need to access it, but how?
+Parent has data and parent has child selector <app-server-element>, now parent send data to
+child by <app-server-element *ngFor="let serverElement of serverElements"> now child has to
+access this data by using [element]="serverElement" but component cant access other component data we need to expose our child to let parent inject its data by
+@Input() element : {type: string,name: string,content: string};
+
+Now Just Reverse:
+-----------------
+Now we emit event from child to parent.....
+
+child....
+<div class="col-xs-12">
+    <p>Add new Servers or blueprints!</p>
+    <label>Server Name</label>
+    <input type="text" class="form-control" [(ngModel)]="newServerName">
+    <label>Server Content</label>
+    <input type="text" class="form-control" [(ngModel)]="newServerContent">
+    <br>
+    <button
+      class="btn btn-primary"
+      (click)="onAddServer()">Add Server</button>
+    <button
+      class="btn btn-primary"
+      (click)="onAddBlueprint()">Add Server Blueprint</button>
+</div>
+
+export class CockpitComponent implements OnInit {
+
+  @Output() onServerCreate = new EventEmitter<{name:string,content:string}>();
+  @Output() onBlueprintCreate = new EventEmitter<{name:string,content:string}>();
+
+  newServerName = '';
+  newServerContent = '';
+
+  constructor() { }
+
+  ngOnInit() {
+  }
+
+  onAddServer() {
+   this.onServerCreate.emit({
+     name: this.newServerName,
+     content: this.newServerContent
+   });
+  }
+
+  onAddBlueprint() {
+    this.onBlueprintCreate.emit({
+      name: this.newServerName,
+      content: this.newServerContent
+    });
+  }
+}
+
+Parent....ng
+<app-cockpit (onServerCreate)="onServerAdded($event)" (onBlueprintCreate)="onBlueprintAdded($event)"></app-cockpit>
+  
+onServerAdded(serverData:{name:string,content:string}) {
+    this.serverElements.push({
+     type: 'server',
+     name: serverData.name,
+     content: serverData.content
+     });
+  }
+
+  onBlueprintAdded(serverData:{name:string,content:string}) {
+    this.serverElements.push({
+     type: 'blueprint',
+      name: serverData.name,
+      content: serverData.content
+     });
+  }
+
+ Css Encapsulation:
+ ------------------
+ Each css is encapsulated to its component only, angular add a new attribute to its
+ component html and assign the css to those attributes only!
+ we can change this by : encapsulation:ViewEncapsulation.Emulated or None, Native
+ Emulated is default None means it will apply globally
+
+ Local Reference:
+ ----------------
+ <input type="text" class="form-control" #newServerName>
+ (click)="onAddServer(newServerName)">Add Server</button>
+
+/* newServerName this will give whole element */
+ onAddServer(newServerName) {
+   this.onServerCreate.emit({
+     name: newServerName.value,
+     content: this.newServerContent
+   });
+  }
+
+Using ViewChild:
+----------------
+<input type="text" class="form-control" #newServerContent>
+
+@ViewChild('newServerContent') newServerContent : ElementRef;
+ onAddServer(newServerName) {
+   this.onServerCreate.emit({
+     name: newServerName.value,
+     content: this.newServerContent.nativeElement.value
+   });
+  }
+
+Add Content into Component:
+---------------------------
+<app-server-element *ngFor="let serverElement of serverElements" [element]="serverElement">
+        <p>
+          <strong *ngIf="serverElement.type === 'server'" style="color: red">{{ serverElement.content }}</strong>
+          <em *ngIf="serverElement.type === 'blueprint'">{{ serverElement.content }}</em>
+        </p>
+</app-server-element>
+
+......use <ng-content>
+<div class="panel-body">
+   <ng-content></ng-content>
+</div>
+
+Lifecycle Of Component:
+-----------------------
+ngOnChanges:call after a bound input property changes
+ngOnInit:called once the component is initialized
+ngDoCheck:called during every change dection run
+ngAfterContentInit:called after content(ng-content) has been projected into veiw
+ngAfterContentChecked:call every time the projected content has been checked
+ngAfterViewInit:call after the component view(and the child view) has been initialize
+ngAfterViewChecked:call every time the view and the child view has been checked
+ngOnDestroy:call once the component is about to destroy
+
+Call Hirerachy : 
+---------------
+constructor called 
+ngOnChanges called
+ngOnInit called
+ngDoCheck called 
+ngAfterContentInit called 
+ngAfterContentChecked called 
+ngAfterViewInit called 
+ngAfterViewChecked called 
+ngOnDestroy called
+
+let and const:
+--------------
+use let for variable which changes 
+use const which dosent change
+
+To create Directive :
+---------------------
+ng g d basic-highlight
+
+import {Directive, OnInit, Renderer2, ElementRef} from '@angular/core';
+
+@Directive({
+  selector: '[appBetterHighlight]'
+})
+export class BetterHighlightDirective implements OnInit{
+
+  constructor(private elementRef:ElementRef, private render:Renderer2) { }
+
+  ngOnInit(){
+    this.render.setStyle(this.elementRef.nativeElement,'backgroundColor','yellow');
+  }
+
+}
+
+HostListner and HostBinding:
+----------------------------
+import {Directive, OnInit, Renderer2, ElementRef, HostListener, HostBinding} from '@angular/core';
+
+@Directive({
+  selector: '[appBetterHighlight]'
+})
+export class BetterHighlightDirective implements OnInit{
+  // Host Bind will bind with the element on which we use this directive
+  @HostBinding('style.backgroundColor') backgroundColor:string = 'yellow';
+
+  constructor(private elementRef:ElementRef, private render:Renderer2) { }
+
+  ngOnInit(){
+    this.render.setStyle(this.elementRef.nativeElement,'backgroundColor','yellow');
+  }
+  // Host listner will listen to event on which we use this directive
+  @HostListener('mouseenter') mouseEnter(eventData:Event){
+    //this.render.setStyle(this.elementRef.nativeElement,'backgroundColor','green');
+    this.backgroundColor = 'green';
+  }
+
+  @HostListener('mouseleave') mouseLeave(eventData:Event){
+    //this.render.setStyle(this.elementRef.nativeElement,'backgroundColor','yellow');
+    this.backgroundColor = 'yellow';
+  }
+}
+
+Services and DI:
+----------------
+TO make common so that every one can share
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
